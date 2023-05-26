@@ -96,11 +96,14 @@ namespace Deviot.ModbusSimulator.App
                 _modbusTcpServer.Stop();
                 ClearValues();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ShowErrorMessage(ex.Message);
+                _modbusTcpServer.Stop();
+            }     
+            finally
+            {
                 _modbusTcpServer.Dispose();
-            }            
+            }
         }
 
         private void btStart_Click(object sender, EventArgs e)
