@@ -53,7 +53,7 @@ namespace Deviot.ModbusSimulator.App
             var pressureIn = default(int);
             var pressureOut = default(int);
             var holdingRegisters = _modbusTcpServer.GetHoldingRegisters();
-            var statusPump = holdingRegisters.GetLittleEndian<int>(4);
+            var statusPump = holdingRegisters.GetMidLittleEndian<int>(4);
 
             txtTemperatureIn.Invoke((MethodInvoker)(() => temperarturaIn = int.Parse(txtTemperatureIn.Text)));
             temperarturaIn = RandomNumber(temperarturaIn, 150, 250);
