@@ -1,6 +1,8 @@
 # deviot-modbus-demo1
 Simulador Modbus TCP utilizado para os vídeos do canal
 
+Download clique [aqui](https://deviot-public.s3.amazonaws.com/downloads/Deviot.ModbusSimulator.Install.msi)
+
 # Tabela modbus TCP
 
 # COILS
