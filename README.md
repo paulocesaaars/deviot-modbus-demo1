@@ -1,5 +1,5 @@
 # deviot-modbus-demo1
-Simulador Modbus TCP utilizado no para os vídeos do canal
+Simulador Modbus TCP utilizado para os vídeos do canal
 
 # Tabela modbus TCP
 
