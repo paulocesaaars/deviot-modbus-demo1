@@ -1,6 +1,4 @@
 using FluentModbus;
-using Microsoft.Win32;
-using System;
 
 namespace Deviot.ModbusSimulator.App
 {
@@ -8,7 +6,7 @@ namespace Deviot.ModbusSimulator.App
     {
         private ModbusTcpServer _modbusTcpServer;
         private CancellationTokenSource _cancellationTokenSource;
-        
+
         private const string GENERIC_TITLE_ERROR = "Erro não esperado";
 
         public frmMain()
@@ -28,6 +26,9 @@ namespace Deviot.ModbusSimulator.App
             txtTemperatureOut.Invoke((MethodInvoker)(() => txtTemperatureOut.Clear()));
             txtPressureIn.Invoke((MethodInvoker)(() => txtPressureIn.Clear()));
             txtPressureOut.Invoke((MethodInvoker)(() => txtPressureOut.Clear()));
+            displayStatus.Invoke((MethodInvoker)(() => { displayStatus.Text = "Desligada"; displayStatus.ForeColor = Color.Black; }));
+            btOn.Invoke((MethodInvoker)(() => { btOn.Enabled = false; }));
+            btOff.Invoke((MethodInvoker)(() => { btOff.Enabled = false; }));
         }
 
         private int RandomNumber(int currentNumber, int min, int max)
@@ -51,36 +52,59 @@ namespace Deviot.ModbusSimulator.App
             var temperarturaOut = default(int);
             var pressureIn = default(int);
             var pressureOut = default(int);
-            var registers = _modbusTcpServer.GetHoldingRegisters();
+            var holdingRegisters = _modbusTcpServer.GetHoldingRegisters();
+            var statusPump = holdingRegisters.GetLittleEndian<int>(4);
 
             txtTemperatureIn.Invoke((MethodInvoker)(() => temperarturaIn = int.Parse(txtTemperatureIn.Text)));
             temperarturaIn = RandomNumber(temperarturaIn, 150, 250);
 
             txtTemperatureIn.Invoke((MethodInvoker)(() => txtTemperatureIn.Text = temperarturaIn.ToString()));
-            registers.SetMidLittleEndian(0, temperarturaIn);
+            holdingRegisters.SetMidLittleEndian(0, temperarturaIn);
 
             txtTemperatureOut.Invoke((MethodInvoker)(() => temperarturaOut = int.Parse(txtTemperatureOut.Text)));
             temperarturaOut = RandomNumber(temperarturaOut, 350, 450);
 
             txtTemperatureOut.Invoke((MethodInvoker)(() => txtTemperatureOut.Text = temperarturaOut.ToString()));
-            registers.SetMidLittleEndian(1, temperarturaOut);
+            holdingRegisters.SetMidLittleEndian(1, temperarturaOut);
 
             txtPressureIn.Invoke((MethodInvoker)(() => pressureIn = int.Parse(txtPressureIn.Text)));
             pressureIn = RandomNumber(pressureIn, 200, 300);
 
             txtPressureIn.Invoke((MethodInvoker)(() => txtPressureIn.Text = pressureIn.ToString()));
-            registers.SetMidLittleEndian(2, pressureIn);
+            holdingRegisters.SetMidLittleEndian(2, pressureIn);
 
             txtPressureOut.Invoke((MethodInvoker)(() => pressureOut = int.Parse(txtPressureOut.Text)));
             pressureOut = RandomNumber(pressureOut, 300, 400);
 
             txtPressureOut.Invoke((MethodInvoker)(() => txtPressureOut.Text = pressureOut.ToString()));
-            registers.SetMidLittleEndian(3, pressureOut);
+            holdingRegisters.SetMidLittleEndian(3, pressureOut);
+
+            holdingRegisters.SetMidLittleEndian(4, statusPump);
+
+            var coils = _modbusTcpServer.GetCoils();
+            var commandOn = coils.Get(0);
+            var commandOff = coils.Get(1);
+
+            if (commandOn)
+            {
+                coils.Set(0, false);
+                holdingRegisters.SetMidLittleEndian(4, 2);
+                displayStatus.Invoke((MethodInvoker)(() => { displayStatus.Text = "Ligada"; }));
+                btOff.Invoke((MethodInvoker)(() => { btOff.Enabled = true; }));
+            }
+
+            if (commandOff)
+            {
+                coils.Set(1, false);
+                holdingRegisters.SetMidLittleEndian(4, 0);
+                displayStatus.Invoke((MethodInvoker)(() => { displayStatus.Text = "Desligada"; }));
+                btOn.Invoke((MethodInvoker)(() => { btOn.Enabled = true; }));
+            }
 
             _modbusTcpServer.Update();
         }
 
-        private void ExecutionAsync()
+        private async Task ExecutionAsync()
         {
             try
             {
@@ -90,7 +114,7 @@ namespace Deviot.ModbusSimulator.App
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {
                     UpdateValues();
-                    Task.Delay(10000, _cancellationTokenSource.Token).Wait();
+                    await Task.WhenAny(Task.Delay(10000, _cancellationTokenSource.Token));
                 }
 
                 _modbusTcpServer.Stop();
@@ -99,10 +123,12 @@ namespace Deviot.ModbusSimulator.App
             catch (Exception)
             {
                 _modbusTcpServer.Stop();
-            }     
+                ClearValues();
+            }
             finally
             {
                 _modbusTcpServer.Dispose();
+                
             }
         }
 
@@ -112,6 +138,9 @@ namespace Deviot.ModbusSimulator.App
             {
                 btStart.Visible = false;
                 btStop.Visible = true;
+
+                btOn.Enabled = true;
+                btOff.Enabled = false;
 
                 txtTemperatureIn.Text = "200";
                 txtTemperatureOut.Text = "400";
@@ -134,12 +163,42 @@ namespace Deviot.ModbusSimulator.App
                 btStart.Visible = true;
                 btStop.Visible = false;
 
+                btOn.Enabled = false;
+                btOff.Enabled = false;
+
                 _cancellationTokenSource.Cancel();
             }
             catch (Exception ex)
             {
                 ShowErrorMessage(ex.Message);
             }
+        }
+
+        private void btOn_Click(object sender, EventArgs e)
+        {
+            btOn.Enabled = false;
+            displayStatus.Text = "Ligando";
+            displayStatus.ForeColor = Color.Green;
+
+            var coils = _modbusTcpServer.GetCoils();
+            var holdingRegisters = _modbusTcpServer.GetHoldingRegisters();
+
+            coils.Set(0, true);
+            holdingRegisters.SetMidLittleEndian(4, 1);
+            _modbusTcpServer.Update();
+        }
+
+        private void btOff_Click(object sender, EventArgs e)
+        {
+            btOff.Enabled = false;
+            displayStatus.Text = "Desligando";
+            displayStatus.ForeColor = Color.Black;
+
+            var coils = _modbusTcpServer.GetCoils();
+            var holdingRegisters = _modbusTcpServer.GetHoldingRegisters();
+            coils.Set(1, true);
+            holdingRegisters.SetMidLittleEndian(4, 3);
+            _modbusTcpServer.Update();
         }
     }
 }

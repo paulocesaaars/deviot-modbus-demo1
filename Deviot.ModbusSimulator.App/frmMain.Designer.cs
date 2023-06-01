@@ -41,8 +41,14 @@
             lbPressureIn = new Label();
             btStart = new Button();
             btStop = new Button();
+            gbMotor = new GroupBox();
+            btOff = new Button();
+            btOn = new Button();
+            displayStatus = new Label();
+            lblStatus = new Label();
             gbTemperature.SuspendLayout();
             gbPressure.SuspendLayout();
+            gbMotor.SuspendLayout();
             SuspendLayout();
             // 
             // gbTemperature
@@ -141,39 +147,94 @@
             // 
             // btStart
             // 
-            btStart.Location = new Point(13, 240);
+            btStart.Location = new Point(13, 389);
             btStart.Name = "btStart";
             btStart.Size = new Size(210, 23);
             btStart.TabIndex = 5;
-            btStart.Text = "Iniciar";
+            btStart.Text = "Iniciar Simulação";
             btStart.UseVisualStyleBackColor = true;
             btStart.Click += btStart_Click;
             // 
             // btStop
             // 
-            btStop.Location = new Point(13, 240);
+            btStop.Location = new Point(12, 388);
             btStop.Name = "btStop";
             btStop.Size = new Size(210, 23);
             btStop.TabIndex = 6;
-            btStop.Text = "Parar";
+            btStop.Text = "Parar Simulação";
             btStop.UseVisualStyleBackColor = true;
             btStop.Visible = false;
             btStop.Click += btStop_Click;
+            // 
+            // gbMotor
+            // 
+            gbMotor.Controls.Add(btOff);
+            gbMotor.Controls.Add(btOn);
+            gbMotor.Controls.Add(displayStatus);
+            gbMotor.Controls.Add(lblStatus);
+            gbMotor.Location = new Point(12, 242);
+            gbMotor.Name = "gbMotor";
+            gbMotor.Size = new Size(211, 135);
+            gbMotor.TabIndex = 7;
+            gbMotor.TabStop = false;
+            gbMotor.Text = "Bomba da Água";
+            // 
+            // btOff
+            // 
+            btOff.Enabled = false;
+            btOff.Location = new Point(15, 94);
+            btOff.Name = "btOff";
+            btOff.Size = new Size(180, 23);
+            btOff.TabIndex = 3;
+            btOff.Text = "Desligar";
+            btOff.UseVisualStyleBackColor = true;
+            btOff.Click += btOff_Click;
+            // 
+            // btOn
+            // 
+            btOn.Enabled = false;
+            btOn.Location = new Point(15, 65);
+            btOn.Name = "btOn";
+            btOn.Size = new Size(180, 23);
+            btOn.TabIndex = 2;
+            btOn.Text = "Ligar";
+            btOn.UseVisualStyleBackColor = true;
+            btOn.Click += btOn_Click;
+            // 
+            // displayStatus
+            // 
+            displayStatus.AutoSize = true;
+            displayStatus.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
+            displayStatus.Location = new Point(71, 33);
+            displayStatus.Name = "displayStatus";
+            displayStatus.Size = new Size(69, 17);
+            displayStatus.TabIndex = 1;
+            displayStatus.Text = "Desligada";
+            // 
+            // lblStatus
+            // 
+            lblStatus.AutoSize = true;
+            lblStatus.Location = new Point(23, 34);
+            lblStatus.Name = "lblStatus";
+            lblStatus.Size = new Size(42, 15);
+            lblStatus.TabIndex = 0;
+            lblStatus.Text = "Status:";
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(234, 281);
+            ClientSize = new Size(234, 421);
+            Controls.Add(gbMotor);
             Controls.Add(btStart);
             Controls.Add(btStop);
             Controls.Add(gbPressure);
             Controls.Add(gbTemperature);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
-            MaximumSize = new Size(250, 320);
-            MinimumSize = new Size(250, 320);
+            MaximumSize = new Size(250, 460);
+            MinimumSize = new Size(250, 460);
             Name = "frmMain";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Simulador";
@@ -181,6 +242,8 @@
             gbTemperature.PerformLayout();
             gbPressure.ResumeLayout(false);
             gbPressure.PerformLayout();
+            gbMotor.ResumeLayout(false);
+            gbMotor.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -198,5 +261,10 @@
         private Label lbPressureIn;
         private Button btStart;
         private Button btStop;
+        private GroupBox gbMotor;
+        private Label displayStatus;
+        private Label lblStatus;
+        private Button btOff;
+        private Button btOn;
     }
 }
