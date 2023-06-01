@@ -3,7 +3,7 @@ Simulador Modbus TCP utilizado no para os vídeos do canal
 
 # Tabela modbus TCP
 
-# Tabela modbus TCP - COILS
+# COILS
 
 | Comandos                | Posição | Endereço |
 | :---------------------- | :------ | :------- |
@@ -11,7 +11,7 @@ Simulador Modbus TCP utilizado no para os vídeos do canal
 | Desligar bomba          | 1       | 00001    |
 
 
-# Tabela modbus TCP - HOLDING REGISTERS
+# HOLDING REGISTERS
 
 | Registro                | Posição | Endereço |
 | :---------------------- | :------ | :------- |
