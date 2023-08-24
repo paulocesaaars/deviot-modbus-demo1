@@ -48,11 +48,12 @@ namespace Deviot.ModbusSimulator.App
 
         private void UpdateValues()
         {
-            var temperarturaIn = default(int);
-            var temperarturaOut = default(int);
-            var pressureIn = default(int);
-            var pressureOut = default(int);
             var holdingRegisters = _modbusTcpServer.GetHoldingRegisters();
+
+            var temperarturaIn = holdingRegisters.GetMidLittleEndian<int>(0);
+            var temperarturaOut = holdingRegisters.GetMidLittleEndian<int>(1);
+            var pressureIn = holdingRegisters.GetMidLittleEndian<int>(2);
+            var pressureOut = holdingRegisters.GetMidLittleEndian<int>(3);
             var statusPump = holdingRegisters.GetMidLittleEndian<int>(4);
 
             txtTemperatureIn.Invoke((MethodInvoker)(() => temperarturaIn = int.Parse(txtTemperatureIn.Text)));
@@ -120,15 +121,13 @@ namespace Deviot.ModbusSimulator.App
                 _modbusTcpServer.Stop();
                 ClearValues();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _modbusTcpServer.Stop();
-                ClearValues();
+                ShowErrorMessage(ex.Message);
             }
             finally
             {
-                _modbusTcpServer.Dispose();
-                
+                _modbusTcpServer.Dispose();                
             }
         }
 
@@ -162,9 +161,6 @@ namespace Deviot.ModbusSimulator.App
             {
                 btStart.Visible = true;
                 btStop.Visible = false;
-
-                btOn.Enabled = false;
-                btOff.Enabled = false;
 
                 _cancellationTokenSource.Cancel();
             }
